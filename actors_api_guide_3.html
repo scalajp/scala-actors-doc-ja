@@ -1,24 +1,59 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="HTML Tidy for Mac OS X (vers 25 March 2009), see www.w3.org" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Scala 2.8 アクター API -- フューチャ</title>
 <link rel="stylesheet" type="text/css" href="guide.css" />
-</head> 
+</head>
 <body dir="ltr">
-<table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_2.html"><img border="0" alt="制御構造" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>フューチャ</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table> <h1>フューチャ</h1> <p><code>ReplyReactor</code> と <code>Actor</code> トレイトは、戻り値を返す通信演算（<code>!!</code> メソッド）をサポートし、それらは即時に<em>フューチャ</em> (future) を返す。フューチャとは <a href="http://www.scala-lang.org/api/current/scala/actors/Future.html"><tt>Future</tt></a> トレイトのインスタンスのことで、フューチャ付きメッセージ通信 (message send-with-future) への応答を取得することができる。</p> <p>フューチャ付きメッセージ通信の送信者は、フューチャを<em>適用</em> (apply)することでフューチャの応答を待機することができる。例えば、<code>val fut = a !! msg</code> によってメッセージを送信した後、送信者はフューチャの結果を以下のようにして待機できる: 
-<code>val res = fut()</code>. 
-</p> <p>また、<code>isSet</code> メソッドを用いて <code>Future</code> の戻り値が入手可能かどうかをブロックせずに調べることができる。</p> <p>フューチャ付きメッセージ通信だけがフューチャを得る方法ではない。フューチャは <code>future</code> メソッドの計算結果として作成することができる。以下の例では、<code>body</code> の計算は並行して開始され、戻り値としてフューチャを返す: </p> <pre>
+<table width="100%" cellpadding="0" cellspacing="2">
+<tr>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="next.png" /></a></td>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png" /></a></td>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_2.html"><img border="0" alt="制御構造" src="previous.png" /></a></td>
+<td align="center" bgcolor="#99CCFF" width="100%"><b>フューチャ</b></td>
+<td bgcolor="#99CCFF" align="center"><a href="actors_api_guide_7.html"></a>
+<p><a href="actors_api_guide_7.html">目次</a></p>
+<a href="actors_api_guide_7.html"></a></td>
+<td bgcolor="#99CCFF" align="center"><a href="hlxindex">索引</a></td>
+</tr>
+</table>
+<h1>フューチャ</h1>
+<p><code>ReplyReactor</code> と <code>Actor</code> トレイトは、戻り値を返す通信演算（<code>!!</code> メソッド）をサポートし、それらは即時に<em>フューチャ</em> (future) を返す。フューチャとは <a href="http://www.scala-lang.org/api/current/scala/actors/Future.html"><tt>Future</tt></a> トレイトのインスタンスのことで、フューチャ付きメッセージ通信 (message send-with-future) への応答を取得することができる。</p>
+<p>フューチャ付きメッセージ通信の送信者は、フューチャを<em>適用</em> (apply)することでフューチャの応答を待機することができる。例えば、<code>val fut = a !! msg</code> によってメッセージを送信した後、送信者はフューチャの結果を以下のようにして待機できる: <code>val res = fut()</code>.</p>
+<p>また、<code>isSet</code> メソッドを用いて <code>Future</code> の戻り値が入手可能かどうかをブロックせずに調べることができる。</p>
+<p>フューチャ付きメッセージ通信だけがフューチャを得る方法ではない。フューチャは <code>future</code> メソッドの計算結果として作成することができる。以下の例では、<code>body</code> の計算は並行して開始され、戻り値としてフューチャを返す:</p>
+<pre>
 val fut = future { body }
 // ...
 fut() // フューチャの待機
-</pre> <p>フューチャが、アクターの文脈において特別なのは、<code>receive</code> などの標準的なアクターによる受信演算を用いてその結果を取得できることだ。さらに、<code>react</code> や <code>reactWithin</code> などのイベントによる演算も使うことができる。これによりアクターは、内部スレッドをブロックせずにフューチャの戻り値を待機することができる。</p> <p>アクターによる受信演算はフーチャの <code>inputChannel</code> により実現されている。<code>Future[T]</code> 型のフューチャに対して、これは <code>InputChannel[T]</code> 型を持つ。具体例としては:</p> <pre>
+</pre>
+<p>フューチャが、アクターの文脈において特別なのは、<code>receive</code> などの標準的なアクターによる受信演算を用いてその結果を取得できることだ。さらに、<code>react</code> や <code>reactWithin</code> などのイベントによる演算も使うことができる。これによりアクターは、内部スレッドをブロックせずにフューチャの戻り値を待機することができる。</p>
+<p>アクターによる受信演算はフーチャの <code>inputChannel</code> により実現されている。<code>Future[T]</code> 型のフューチャに対して、これは <code>InputChannel[T]</code> 型を持つ。具体例としては:</p>
+<pre>
 val fut = a !! msg
 // ...
 fut.inputChannel.react {
   case Response =&gt; // ...
 }
-</pre> <hr><address>2010年11月30日</address><br> <table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_2.html"><img border="0" alt="制御構造" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>フューチャ</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table></body>
+</pre>
+<hr />
+<address>2010年11月30日</address>
+<br />
+<table width="100%" cellpadding="0" cellspacing="2">
+<tr>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="next.png" /></a></td>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png" /></a></td>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_2.html"><img border="0" alt="制御構造" src="previous.png" /></a></td>
+<td align="center" bgcolor="#99CCFF" width="100%"><b>フューチャ</b></td>
+<td bgcolor="#99CCFF" align="center"><a href="actors_api_guide_7.html"></a>
+<p><a href="actors_api_guide_7.html">目次</a></p>
+<a href="actors_api_guide_7.html"></a></td>
+<td bgcolor="#99CCFF" align="center"><a href="hlxindex">索引</a></td>
+</tr>
+</table>
+</body>
 </html>

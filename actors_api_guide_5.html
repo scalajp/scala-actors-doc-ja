@@ -1,20 +1,54 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="HTML Tidy for Mac OS X (vers 25 March 2009), see www.w3.org" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Scala アクター 2.8 API -- スケジューラ</title>
 <link rel="stylesheet" type="text/css" href="guide.css" />
 </head>
 <body dir="ltr">
-<table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_6.html"><img border="0" alt="Remote Actors" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>スケジューラ</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table> 
-<h1>スケジューラ</h1> 
+<table width="100%" cellpadding="0" cellspacing="2">
+<tr>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_6.html"><img border="0" alt="Remote Actors" src="next.png" /></a></td>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png" /></a></td>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="previous.png" /></a></td>
+<td align="center" bgcolor="#99CCFF" width="100%"><b>スケジューラ</b></td>
+<td bgcolor="#99CCFF" align="center"><a href="actors_api_guide_7.html"></a>
+<p><a href="actors_api_guide_7.html">目次</a></p>
+<a href="actors_api_guide_7.html"></a></td>
+<td bgcolor="#99CCFF" align="center"><a href="hlxindex">索引</a></td>
+</tr>
+</table>
+<h1>スケジューラ</h1>
 <p><code>Reactor</code>（またはその子クラスのインスタンス）は、<em>スケジューラ</em> (scheduler) により実行される。<code>Reactor</code> トレイトは、そのインスタンスを実行するのに使われるスケジューラを返す <code>scheduler</code> メンバーを導入する。</p>
-<div class="quote"><pre>def scheduler: IScheduler</pre></div>
-<p>実行時のシステムは、 <code>IScheduler</code> に定義される <code>execute</code> メソッドのどれかにタスクを提出することでアクターを実行する。このトレイトの他のメソッドのほとんどが必要になるのは、一から新しいスケジューラを実装しているときぐらいで、新しいスケジューラが必要になることは稀だ。</p> <p><code>Reactor</code> や <code>Actor</code> の実行に使われるデフォルトのスケジューラは、全てのアクターが実行を終了すると、その状況を把握する。これが起こるとスケジューラは、使っているスレッドを終了した後、自身をシャットダウンする。しかし、 （<code>scheduler</code> パッケージの）<code>SingleThreadedScheduler</code> のように、明示的に <code>shutdown</code> メソッドを呼び出すことでシャットダウンさせる必要のあるスケジューラもある。</p> <p>独自のスケジューラを作成するのに最も手軽な方法は <code>SchedulerAdapter</code> を継承して、以下の抽象メンバーを実装することだ。
-</p>
-<div class="quote"><pre>def execute(fun: =&gt; Unit): Unit</pre></div>
-<p>典型的な実装では、名前渡しの引数 <code>fun</code> はスレッドプールを用いて実行される。</p> <hr><address>2010年11月30日</address><br> <table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_6.html"><img border="0" alt="リモートアクター" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>スケジューラ</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table>
+<div class="quote">
+<pre>
+def scheduler: IScheduler
+</pre></div>
+<p>実行時のシステムは、 <code>IScheduler</code> に定義される <code>execute</code> メソッドのどれかにタスクを提出することでアクターを実行する。このトレイトの他のメソッドのほとんどが必要になるのは、一から新しいスケジューラを実装しているときぐらいで、新しいスケジューラが必要になることは稀だ。</p>
+<p><code>Reactor</code> や <code>Actor</code> の実行に使われるデフォルトのスケジューラは、全てのアクターが実行を終了すると、その状況を把握する。これが起こるとスケジューラは、使っているスレッドを終了した後、自身をシャットダウンする。しかし、 （<code>scheduler</code> パッケージの）<code>SingleThreadedScheduler</code> のように、明示的に <code>shutdown</code> メソッドを呼び出すことでシャットダウンさせる必要のあるスケジューラもある。</p>
+<p>独自のスケジューラを作成するのに最も手軽な方法は <code>SchedulerAdapter</code> を継承して、以下の抽象メンバーを実装することだ。</p>
+<div class="quote">
+<pre>
+def execute(fun: =&gt; Unit): Unit
+</pre></div>
+<p>典型的な実装では、名前渡しの引数 <code>fun</code> はスレッドプールを用いて実行される。</p>
+<hr />
+<address>2010年11月30日</address>
+<br />
+<table width="100%" cellpadding="0" cellspacing="2">
+<tr>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_6.html"><img border="0" alt="リモートアクター" src="next.png" /></a></td>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png" /></a></td>
+<td bgcolor="#99CCFF"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="previous.png" /></a></td>
+<td align="center" bgcolor="#99CCFF" width="100%"><b>スケジューラ</b></td>
+<td bgcolor="#99CCFF" align="center"><a href="actors_api_guide_7.html"></a>
+<p><a href="actors_api_guide_7.html">目次</a></p>
+<a href="actors_api_guide_7.html"></a></td>
+<td bgcolor="#99CCFF" align="center"><a href="hlxindex">索引</a></td>
+</tr>
+</table>
 </body>
 </html>
