@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Scala 2.8 アクター API -- リモートアクター</title>
+<link rel="stylesheet" type="text/css" href="guide.css" />
+</head>
+<body dir="ltr">
+<table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_7.html"><img border="0" alt="目次" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_5.html"><img border="0" alt="スケジューラ" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>リモートアクター</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table> <h1>リモートアクター</h1> <p>この節ではリモートアクター API の説明をする。主なインターフェイスは、<code>scala.actors.remote</code> パッケージの <a href="http://www.scala-lang.org/api/current/scala/actors/remote/RemoteActor$.html"><tt>RemoteActor</tt></a> オブジェクトだ。このオブジェクトはリモートアクターのインスタンスを作成し接続するためのメソッドを提供する。今後のコード例では、<code>RemoteActor</code> の全てのメンバーがインポート済みであることを前提とする。以下に用いられているインポートを示す: 
+</p>
+<div class="quote"><pre>import scala.actors._
+import scala.actors.Actor._
+import scala.actors.remote._
+import scala.actors.remote.RemoteActor._</pre></div>
+<h2><a name="id1">リモートアクターの起動</a></h2><p>リモートアクターはシンボル (<a href="http://www.scala-lang.org/api/current/scala/Symbol.html"><tt>Symbol</tt></a>) によって一意的に識別される。このシンボルはリモートアクターが実行されている JVM のインスタンス独自のものだ。<code>&#39;myActor</code> という名前で識別されるリモートアクターの作成を以下に示す。</p> 
+<div class="quote"><pre>class MyActor extends Actor {
+  def act() {
+    alive(9000)
+    register(&#39;myActor, self)
+    // ...
+  }
+}</pre></div>
+<p>アクターの名前を登録できるのは、（存命中の）一人のアクターまでであることに注意してほしい。例えば、アクター <i>A</i> を <code>&#39;myActor</code> として登録した後で、別のアクター <i>B</i> も <code>&#39;myActor</code> 登録しようとすると、まず <i>A</i> が終了するまで待たなくてはいけない。この規制は全ポートに渡り、<i>B</i> を <i>A</i> と別のポートで登録するだけでは不十分だ。</p> <h2><a name="id2">リモートアクターへの接続</a></h2><p>リモートアクターへの接続も簡単だ。マシーン <code>myMachine</code> のポート <code>8000</code> で <code>&#39;anActor</code> という名前で実行中のリモートアクターへのリモート参照を取得するには、以下のように <code>select</code> を用いる:</p>
+<div class="quote"><pre>val myRemoteActor = select(Node(&quot;myMachine&quot;, 8000), &#39;anActor)</pre></div>
+<p><code>select</code> が返すアクターは <code>AbstractActor</code> 型であり、基本的には普通のアクターを同じインターフェイスを持つため、通常のメッセージ通信演算をサポートする:</p>
+<div class="quote"><pre>myRemoteActor ! &quot;おはよう!&quot;
+receive {
+  case response =&gt; println(&quot;応答: &quot; + response)
+}
+myRemoteActor !? &quot;人生の意味は何?&quot; match {
+  case 42   =&gt; println(&quot;成功&quot;)
+  case oops =&gt; println(&quot;失敗: &quot; + oops)
+}
+val future = myRemoteActor !! &quot;円周率の最後の桁の数は何?&quot;</pre></div>
+<p>ここで注意してほしいのは、<code>select</code> は遅延評価されるためネットワーク接続を始動しないということだ。これは <code>select</code> が、（例えば、<code>!</code> の呼び出しなど）必要に応じてネットワーク接続を始動できる状態の新しい <code>AbstractActor</code> のインスタンスを作成するからだ。</p> <hr>
+<address>2010年11月30日</address><br> <table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_7.html"><img border="0" alt="目次" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_5.html"><img border="0" alt="スケジューラ" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>リモートアクター</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table>
+</body>
+</html>
