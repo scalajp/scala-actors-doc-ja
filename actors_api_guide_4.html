@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Scala アクター API -- チャンネル</title>
+
+<link rel="stylesheet" type="text/css" href="guide.css" />
+</head> 
+<body  dir="ltr">
+ <table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_5.html"><img border="0" alt="スケジューラ" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_3.html"><img border="0" alt="フューチャ" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>チャンネル</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table> <h1>チャンネル</h1> <p>チャンネルは同じアクターに送信される異なる型のメッセージの処理を簡略化する。チャンネルの継承階層は <code>OutputChannel</code> と <code>InputChannel</code> に分かれる。</p> <p><code>OutputChannel</code> はメッセージの送信に用いられる。<code>OutputChannel</code> <code>out</code> は以下の演算をサポートする。
+</p> <ul> <li><code>out ! msg</code>。非同期で <code>msg</code> を <code>out</code> に送信する。アクターに直接 <code>msg</code> が送信された場合と同様に、送信アクターの参照も通信される。</li><li><code>out forward msg</code>。非同期で <code>msg</code> を <code>out</code> に転送する。アクターに直接 <code>msg</code> が転送された場合と同様に、送信アクターが限定される。</li><li><code>out.receiver</code>。 <code>out</code> チャンネルに送信されるメッセージを受信する唯一のアクターを返す。</li><li><code>out.send(msg, from)</code>。非同期で <code>msg</code> を <code>out</code> に、メッセージの送信者を <code>from</code> として送信する。</li></ul> <p><code>OutputChannel</code> トレイトは、（ <code>!</code>、<code>forward</code>、<code>send</code> を用いて）チャンネルに送信できるメッセージの型を型パラメータとして持つことに注意してほしい。この型パラメータは反変 (contravariant) だ: </p>
+<div class="quote">
+<code>trait OutputChannel[-Msg]</code>
+</div>
+<p>アクターは <code>InputChannel</code> からメッセージを受信できる。<code>OutputChannel</code> 同様に、<code>InputChannel</code> トレイトは、チャンネルから受信できるメッセージの型を型パラメータとしてを持つ。
+この型パラメータは共変 (covariant) だ: </p>
+<div class="quote">
+<code>trait InputChannel[+Msg]</code>
+</div>
+<p><code>InputChannel[Msg]</code> <code>in</code> は以下の演算をサポートする。</p> <ul> <li><code>in.receive { case Pat1 =&gt; ... ; case Patn =&gt; ... }</code>
+（<code>in.receiveWithin</code>、も同様）。<code>in</code> からメッセージを受信する。入力チャンネルに対する <code>receive</code> の呼び出しは標準的なアクターに対する <code>receive</code> 演算と同じ意味を持つ。唯一の違いは、引数として渡される部分関数が、<code>PartialFunction[Msg, R]</code> 型をとることだ（<code>R</code> は <code>receive</code> の戻り値型）。</li><li><code>in.react { case Pat1 =&gt; ... ; case Patn =&gt; ... }</code>
+（<code>in.reactWithin</code> も同様）。 イベントによる <code>react</code> を用いて <code>in</code> からメッセージを受信する。アクターの <code>react</code> と同様に、戻り値型は呼び出しが戻らないことを示す <code>Nothing</code> だ。上記の <code>receive</code> 同様に、引数として渡される部分関数の型は、<code>PartialFunction[Msg, Unit]</code> に再定義されている。
+</li></ul> <h2><a name="id1">チャンネルの作成と共有</a></h2><p>チャンネルは具象クラス (concrete class) である <code>Channel</code> を用いて作成される。これは <code>InputChannel</code> と <code>OutputChannel</code> の両方を継承する。チャンネルは複数のアクターから見えるようなスコープに置くか、メッセージの中に入れて送信することで共有できる。</p> <p>以下に、スコープによる共有の具体例を示す。</p> 
+<div class="quote"><pre>actor {
+  var out: OutputChannel[String] = null
+  val child = actor {
+    react {
+      case &quot;発進&quot; =&gt; out ! &quot;おはよう&quot;
+    }
+  }
+  val channel = new Channel[String]
+  out = channel
+  child ! &quot;発進&quot;
+  channel.receive {
+    case msg =&gt; println(msg.length)
+  }
+}
+</pre> </div>
+<p>この例を実行するとコンソールに文字列の <code>&quot;5&quot;</code> が表示される。<code>child</code> アクターは <code>OutputChannel[String]</code> の <code>out</code> にのみアクセスがあることに注意してほしい。メッセージを受信することもできる <code>channel</code> への参照は、<code>child</code> からは見えなくなっている。しかし、<code>child</code> がメッセージを送信する前に、出力チャンネルがなんらかのチャンネル実装により初期化されていることに気を使わなくてはならない。これは、<code>&quot;発進&quot;</code> メッセージにより行われている。<code>channel.receive</code> を用いて <code>channel</code> からメッセージを受信した後、<code>msg</code> が <code>String</code>型であることを利用して、例えば <code>length</code> メンバーを使うことができる。</p> <p>チャンネルを共有するもう一つの方法として、メッセージの中に入れて送信するというものがある。次の例で、これを示す。</p> 
+<div class="quote"><pre>case class ReplyTo(out: OutputChannel[String])
+
+val child = actor {
+  react {
+    case ReplyTo(out) =&gt; out ! &quot;おはよう&quot;
+  }
+}
+
+actor {
+  val channel = new Channel[String]
+  child ! ReplyTo(channel)
+  channel.receive {
+    case msg =&gt; println(msg.length)
+  }
+}
+</pre></div>
+<p><code>OutputChannel[String]</code> への参照を配布するためのメッセージ型として <code>ReplyTo</code> ケースクラスを使う。<code>child</code> アクターが <code>ReplyTo</code> メッセージを受信すると、それはメッセージ内に格納された出力チャンネルにメッセージを送信する。二番目のアクターは、先ほどの例と同様にそのチャンネルからメッセージを受信する。</p> <hr><address>2010年11月30日</address><br> <table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_5.html"><img border="0" alt="スケジューラ" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_3.html"><img border="0" alt="フューチャ" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>チャンネル</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table>
+</body>
+</html>

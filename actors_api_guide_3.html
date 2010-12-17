@@ -3,8 +3,9 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>Scala アクター API -- フューチャ</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Scala アクター API -- フューチャ</title>
+<link rel="stylesheet" type="text/css" href="guide.css" />
 </head> 
 <body dir="ltr">
 <table width="100%" cellpadding="0" cellspacing="2"><tr> <td bgcolor="#99ccff"><a href="actors_api_guide_4.html"><img border="0" alt="チャンネル" src="next.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_0.html"><img border="0" alt="トップ" src="up.png"></a></td><td bgcolor="#99ccff"><a href="actors_api_guide_2.html"><img border="0" alt="制御構造" src="previous.png"></a></td><td align="center" bgcolor="#99ccff" width="100%"><b>フューチャ</b></td><td bgcolor="#99ccff" align="center"><a href="actors_api_guide_7.html"></a><p><a href="actors_api_guide_7.html">目次</a></p><a href="actors_api_guide_7.html"></a></td><td bgcolor="#99ccff" align="center"><a href="hlxindex">索引</a></td></tr></table> <h1>フューチャ</h1> <p><code>ReplyReactor</code> と <code>Actor</code> トレイトは、戻り値を返す通信演算（<code>!!</code> メソッド）をサポートし、それらは即時に<em>フューチャ</em> (future) を返す。フューチャとは <a href="http://www.scala-lang.org/api/current/scala/actors/Future.html"><tt>Future</tt></a> トレイトのインスタンスのことで、フューチャ付きメッセージ通信 (message send-with-future) への応答を取得することができる。</p> <p>フューチャ付きメッセージ通信の送信者は、フューチャを<em>適用</em> (apply)することでフューチャの応答を待機することができる。例えば、<code>val fut = a !! msg</code> によってメッセージを送信した後、送信者はフューチャの結果を以下のようにして待機できる: 
