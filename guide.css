@@ -99,3 +99,9 @@ td.tocref a:hover {
   text-decoration: underline;
   color: black;
 }
+
+.transnote {
+	border-left: 1px solid gray;
+	font-family: Century, Times, 'Times New Roman', serif; 
+	padding-left: 1em;
+}
